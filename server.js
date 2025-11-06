@@ -4,9 +4,8 @@ import axios from "axios";
 
 const app = express();
 const PORT = 3000;
-const ACCESS_TOKEN =
-  "+lNmw19QCezQrIpfzdVxvFoTthRqAB99Y0CULXVRrQUvgHuOF0bLTknQKlWA9p+z1w21/K9tdEZWB4yBS1T8MrFx/eE7oMuuA9ueoEPMPH5jtXL7pid6AzvOMM+CssaII1VdN15Ihe6AttZRY8nZqQdB04t89/1O/w1cDnyilFU=";
-const USER_ID = "U4bf11290a9d563e8b6a36676232bf19d";
+const ACCESS_TOKEN = "YOUR_LINE_CHANNEL_ACCESS_TOKEN";
+const USER_ID = "YOUR_LINE_USER_ID";
 
 app.use(cors());
 app.use(express.json());
