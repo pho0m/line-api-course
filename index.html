@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LINE Bot Workshop</title>
+    <style>
+      body {
+        font-family: "Prompt", sans-serif;
+        background: #f5f7fa;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 30px;
+        padding: 40px;
+      }
+      .card {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 340px;
+      }
+      h2 {
+        text-align: center;
+        margin-bottom: 16px;
+        color: #333;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+      button {
+        width: 100%;
+        background: #00c300;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #00a000;
+      }
+      .status {
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+      .log {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        height: 350px;
+        overflow-y: auto;
+        padding: 10px;
+        font-size: 14px;
+        background: #fafafa;
+      }
+      .message {
+        padding: 6px 10px;
+        background: #e6f3ff;
+        border-radius: 6px;
+        margin: 5px 0;
+      }
+      .user {
+        color: #0073e6;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ฟอร์มส่งข้อความไป LINE -->
+    <div class="card">
+      <h2>📩 แจ้งงานผ่าน LINE Bot</h2>
+      <form id="notifyForm">
+        <label>ชื่อผู้แจ้ง:</label>
+        <input type="text" id="name" required />
+        <label>รายละเอียด:</label>
+        <textarea id="message" rows="4" required></textarea>
+        <button type="submit">ส่งข้อมูลไปยัง LINE</button>
+      </form>
+      <div id="status" class="status"></div>
+    </div>
+
+    <!-- จอรับข้อความจาก LINE -->
+    <div class="card">
+      <h2>💬 ข้อความจาก LINE</h2>
+      <div class="log" id="chatLog">
+        <div class="message">🔄 รอรับข้อความจาก LINE...</div>
+      </div>
+    </div>
+
+    <script>
+      // ฟอร์มส่งข้อมูล
+      const form = document.getElementById("notifyForm");
+      const statusDiv = document.getElementById("status");
+      const chatLog = document.getElementById("chatLog");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = {
+          name: document.getElementById("name").value,
+          message: document.getElementById("message").value,
+        };
+        statusDiv.textContent = "⏳ กำลังส่งข้อมูล...";
+        try {
+          const res = await fetch("http://localhost:3000/notify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          if (res.ok) {
+            statusDiv.textContent = "✅ ส่งข้อมูลสำเร็จ!";
+            form.reset();
+          } else statusDiv.textContent = "⚠️ ส่งไม่สำเร็จ";
+        } catch {
+          statusDiv.textContent = "❌ เชื่อมต่อ server ไม่ได้";
+        }
+      });
+
+      // ดึงข้อความใหม่จาก server ทุก 2 วิ
+      async function getMessages() {
+        const res = await fetch("http://localhost:3000/messages");
+        const messages = await res.json();
+        chatLog.innerHTML = "";
+        messages.forEach((msg) => {
+          const div = document.createElement("div");
+          div.className = "message";
+          div.innerHTML = `<span class="user">${msg.user}</span>: ${msg.text}`;
+          chatLog.appendChild(div);
+        });
+      }
+      setInterval(getMessages, 2000);
+    </script>
+  </body>
+</html>
